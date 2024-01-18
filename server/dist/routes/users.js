@@ -4,14 +4,28 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const express_validator_1 = require("express-validator");
 const UserController_1 = require("../controllers/UserController");
+const validate_1 = require("../middlewares/validate");
 const router = express_1.default.Router();
 //회원가입
-router.post('/join', UserController_1.join);
+router.post('/join', [
+    (0, express_validator_1.body)('email')
+        .trim()
+        .notEmpty()
+        .isEmail()
+        .withMessage('email을 입력하세요.'),
+    (0, express_validator_1.body)('password')
+        .trim()
+        .notEmpty()
+        .isString()
+        .withMessage('password를 입력하세요.'),
+    validate_1.validate,
+], UserController_1.join);
 //로그인
 router.post('/login', UserController_1.login);
 //비밀번호 초기화 (요청)
 router.post('/reset', UserController_1.passwordRequestReset);
 //비밀번호 초기화 (최종 수정)
-router.put('/reset', UserController_1.passwordReset);
+router.get('/reset', UserController_1.passwordReset);
 exports.default = router;
