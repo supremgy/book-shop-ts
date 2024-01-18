@@ -1,13 +1,13 @@
 import { StatusCodes } from 'http-status-codes';
 import { NextFunction, Request, Response } from 'express';
-import { body } from 'express-validator';
 import conn from '../db/mariadb';
-import { validate } from '../middlewares/validate';
-import { ResultSetHeader } from 'mysql2';
+import { ResultSetHeader, RowDataPacket } from 'mysql2';
 import bcrypt from 'bcrypt';
-
-const jwtSecretKey: string = '';
-const jwtExpiresInTime: string = '2m';
+import jwt, { Secret } from 'jsonwebtoken';
+import dotenv from 'dotenv';
+dotenv.config();
+const secretkey: string | undefined = process.env.SECRET_KEY;
+const jwtExpiresInTime: string = '10m';
 const bcryptSaltRounds: number = 10;
 type User = {
   email: string;
@@ -31,8 +31,38 @@ export const join = async (req: Request, res: Response) => {
     }
   });
 };
-export const login = (eq: Request, res: Response) => {
-  res.json('로그인');
+export const login = (req: Request, res: Response) => {
+  const { email, password }: User = req.body;
+  let sql = 'SELECT * FROM users WHERE email = ?';
+  conn.query(sql, email, async (err, results: RowDataPacket[]) => {
+    if (err) {
+      return res.status(StatusCodes.BAD_REQUEST).end();
+    }
+
+    let loginUser = results[0];
+    let isPasswordMatch = await bcrypt.compare(password, loginUser.password);
+    if (loginUser && isPasswordMatch) {
+      const token = jwt.sign(
+        {
+          id: loginUser.id,
+          email: loginUser.email,
+        },
+        secretkey as Secret,
+        {
+          expiresIn: jwtExpiresInTime,
+        }
+      );
+
+      res.cookie('token', token, {
+        httpOnly: true,
+      });
+      console.log('token : ', token);
+
+      return res.status(StatusCodes.OK).json(results);
+    } else {
+      return res.status(StatusCodes.UNAUTHORIZED).end();
+    }
+  });
 };
 export const passwordRequestReset = (req: Request, res: Response) => {
   res.json('비밀번호 초기화 (요청)');
