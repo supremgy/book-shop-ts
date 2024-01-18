@@ -16,8 +16,11 @@ exports.passwordReset = exports.passwordRequestReset = exports.login = exports.j
 const http_status_codes_1 = require("http-status-codes");
 const mariadb_1 = __importDefault(require("../db/mariadb"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
-const jwtSecretKey = '';
-const jwtExpiresInTime = '2m';
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
+const secretkey = process.env.SECRET_KEY;
+const jwtExpiresInTime = '10m';
 const bcryptSaltRounds = 10;
 const join = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
@@ -39,8 +42,32 @@ const join = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     });
 });
 exports.join = join;
-const login = (eq, res) => {
-    res.json('로그인');
+const login = (req, res) => {
+    const { email, password } = req.body;
+    let sql = 'SELECT * FROM users WHERE email = ?';
+    mariadb_1.default.query(sql, email, (err, results) => __awaiter(void 0, void 0, void 0, function* () {
+        if (err) {
+            return res.status(http_status_codes_1.StatusCodes.BAD_REQUEST).end();
+        }
+        let loginUser = results[0];
+        let isPasswordMatch = yield bcrypt_1.default.compare(password, loginUser.password);
+        if (loginUser && isPasswordMatch) {
+            const token = jsonwebtoken_1.default.sign({
+                id: loginUser.id,
+                email: loginUser.email,
+            }, secretkey, {
+                expiresIn: jwtExpiresInTime,
+            });
+            res.cookie('token', token, {
+                httpOnly: true,
+            });
+            console.log('token : ', token);
+            return res.status(http_status_codes_1.StatusCodes.OK).json(results);
+        }
+        else {
+            return res.status(http_status_codes_1.StatusCodes.UNAUTHORIZED).end();
+        }
+    }));
 };
 exports.login = login;
 const passwordRequestReset = (req, res) => {
