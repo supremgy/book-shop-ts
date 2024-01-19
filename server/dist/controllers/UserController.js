@@ -18,6 +18,7 @@ const mariadb_1 = __importDefault(require("../db/mariadb"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const dotenv_1 = __importDefault(require("dotenv"));
+const auth_1 = require("../middlewares/auth");
 dotenv_1.default.config();
 const secretkey = process.env.SECRET_KEY;
 const jwtExpiresInTime = '10m';
@@ -70,9 +71,11 @@ const login = (req, res) => {
     }));
 };
 exports.login = login;
-const passwordRequestReset = (req, res) => {
+const passwordRequestReset = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const test = yield (0, auth_1.isAuth)(req, res);
+    console.log(test);
     res.json('비밀번호 초기화 (요청)');
-};
+});
 exports.passwordRequestReset = passwordRequestReset;
 const passwordReset = (req, res) => {
     mariadb_1.default.query('SELECT * FROM users', (err, results) => {

@@ -22,8 +22,8 @@ router.post('/join', validation, join);
 //로그인
 router.post('/login', validation, login);
 //비밀번호 초기화 (요청)
-router.post('/reset', passwordRequestReset);
+router.get('/reset', passwordRequestReset);
 //비밀번호 초기화 (최종 수정)
-router.get('/reset', passwordReset);
+// router.get('/reset', passwordReset);
 
 export default router;

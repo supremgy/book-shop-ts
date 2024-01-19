@@ -22,7 +22,7 @@ router.post('/join', validation, UserController_1.join);
 //로그인
 router.post('/login', validation, UserController_1.login);
 //비밀번호 초기화 (요청)
-router.post('/reset', UserController_1.passwordRequestReset);
+router.get('/reset', UserController_1.passwordRequestReset);
 //비밀번호 초기화 (최종 수정)
-router.get('/reset', UserController_1.passwordReset);
+// router.get('/reset', passwordReset);
 exports.default = router;
