@@ -5,6 +5,7 @@ import { ResultSetHeader, RowDataPacket } from 'mysql2';
 import bcrypt from 'bcrypt';
 import jwt, { Secret } from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import { isAuth } from '../middlewares/auth';
 dotenv.config();
 const secretkey: string | undefined = process.env.SECRET_KEY;
 const jwtExpiresInTime: string = '10m';
@@ -64,7 +65,10 @@ export const login = (req: Request, res: Response) => {
     }
   });
 };
-export const passwordRequestReset = (req: Request, res: Response) => {
+export const passwordRequestReset = async (req: Request, res: Response) => {
+  const test = await isAuth(req, res);
+  console.log(test);
+
   res.json('비밀번호 초기화 (요청)');
 };
 export const passwordReset = (req: Request, res: Response) => {
