@@ -32,7 +32,7 @@ export const join = async (req: Request, res: Response) => {
     }
   });
 };
-export const login = (req: Request, res: Response) => {
+export const login = async (req: Request, res: Response) => {
   const { email, password }: User = req.body;
   let sql = 'SELECT * FROM users WHERE email = ?';
   conn.query(sql, email, async (err, results: RowDataPacket[]) => {
@@ -65,8 +65,10 @@ export const login = (req: Request, res: Response) => {
     }
   });
 };
-export const passwordRequestReset = async (req: Request, res: Response) => {
-  const test = await isAuth(req, res);
+export const passwordRequestReset = (req: Request, res: Response) => {
+  const test = isAuth(req, res).then((res) => {
+    console.log('res', res);
+  });
   console.log(test);
 
   res.json('비밀번호 초기화 (요청)');
