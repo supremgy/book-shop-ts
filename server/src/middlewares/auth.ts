@@ -6,17 +6,17 @@ dotenv.config();
 const AUTH_ERROR = { message: 'Authentication Error' };
 const secretKey: string | undefined = process.env.SECRET_KEY;
 
-export const isAuth = (
+export const isAuth = async (
   req: Request,
   res: Response
-): string | jwt.JwtPayload | undefined => {
+): Promise<string | jwt.JwtPayload | undefined> => {
   const authHeader = req.headers['authorization'];
   if (!(authHeader && authHeader.startsWith('Bearer '))) {
     return res.status(StatusCodes.UNAUTHORIZED).json(AUTH_ERROR);
   }
 
   const token = authHeader.split(' ')[1];
-  jwt.verify(token, secretKey as Secret, async (err, decoded) => {
+  jwt.verify(token, secretKey as Secret, (err, decoded) => {
     if (err instanceof jwt.TokenExpiredError) {
       return res.status(StatusCodes.UNAUTHORIZED).json({
         message: '로그인 세션이 만료됨',

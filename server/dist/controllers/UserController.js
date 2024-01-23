@@ -43,7 +43,7 @@ const join = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     });
 });
 exports.join = join;
-const login = (req, res) => {
+const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
     let sql = 'SELECT * FROM users WHERE email = ?';
     mariadb_1.default.query(sql, email, (err, results) => __awaiter(void 0, void 0, void 0, function* () {
@@ -69,13 +69,15 @@ const login = (req, res) => {
             return res.status(http_status_codes_1.StatusCodes.UNAUTHORIZED).end();
         }
     }));
-};
+});
 exports.login = login;
-const passwordRequestReset = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const test = yield (0, auth_1.isAuth)(req, res);
+const passwordRequestReset = (req, res) => {
+    const test = (0, auth_1.isAuth)(req, res).then((res) => {
+        console.log('res', res);
+    });
     console.log(test);
     res.json('비밀번호 초기화 (요청)');
-});
+};
 exports.passwordRequestReset = passwordRequestReset;
 const passwordReset = (req, res) => {
     mariadb_1.default.query('SELECT * FROM users', (err, results) => {

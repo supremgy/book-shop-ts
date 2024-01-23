@@ -19,13 +19,13 @@ const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const AUTH_ERROR = { message: 'Authentication Error' };
 const secretKey = process.env.SECRET_KEY;
-const isAuth = (req, res) => {
+const isAuth = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const authHeader = req.headers['authorization'];
     if (!(authHeader && authHeader.startsWith('Bearer '))) {
         return res.status(http_status_codes_1.StatusCodes.UNAUTHORIZED).json(AUTH_ERROR);
     }
     const token = authHeader.split(' ')[1];
-    jsonwebtoken_1.default.verify(token, secretKey, (err, decoded) => __awaiter(void 0, void 0, void 0, function* () {
+    jsonwebtoken_1.default.verify(token, secretKey, (err, decoded) => {
         if (err instanceof jsonwebtoken_1.default.TokenExpiredError) {
             return res.status(http_status_codes_1.StatusCodes.UNAUTHORIZED).json({
                 message: '로그인 세션이 만료됨',
@@ -38,6 +38,6 @@ const isAuth = (req, res) => {
         }
         console.log('decoded', decoded);
         return decoded;
-    }));
-};
+    });
+});
 exports.isAuth = isAuth;
